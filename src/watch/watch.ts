@@ -4,20 +4,51 @@ export type WatchDisplay = '24_H' | '12_H';
 
 export class Watch {
 
-    protected currentTime: Date;
     protected currentMode: WatchMode = 'NONE';
     protected currentDisplay: WatchDisplay = '24_H';
     protected currentTheme: WatchTheme = 'LIGHT';
+    protected modHour: number = 0
+    protected modMinute: number = 0
 
-    constructor(private readonly timeZone: number = 0) {
-        let date: Date = new Date();
-        if (this.timeZone !== 0)
-            date.setHours(date.getHours() + timeZone);
-        this.currentTime = date;
+    protected mainContainer: HTMLElement;
+    protected watchElement: HTMLElement;
+    protected watchDisplay: HTMLElement;
+
+    constructor(protected readonly mainContainerId: string, protected readonly timeZone: number = 0) {
+        this.mainContainer = document.getElementById(this.mainContainerId);
+        this.addWatchToDOM();
+    }
+
+    addWatchToDOM(): void {
+        const template: HTMLTemplateElement = document.getElementById("watchTemplate") as HTMLTemplateElement;
+        this.watchElement = template.content.cloneNode(true) as HTMLElement;
+        this.addBtnEventListener();
+        this.watchDisplay = this.watchElement.querySelector(".clockDisplay");
+        this.mainContainer.appendChild(this.watchElement);
+    }
+
+    addBtnEventListener(): void {
+        const watchBtns: NodeListOf<HTMLButtonElement> = this.watchElement.querySelectorAll(".watchBtn");
+        watchBtns.item(0).addEventListener("click", () => this.changeMode());
+        watchBtns.item(1).addEventListener("click", () => this.increase());
+        watchBtns.item(2).addEventListener("click", () => {
+            console.log("None");
+        });
+    }
+
+    start(): number {
+        return window.setInterval(() => {
+            this.watchDisplay.innerText = this.getCurrentTime()
+        }, 1000)
     }
 
     getCurrentTime(): string {
-        return this.currentTime.toLocaleTimeString('en-US', {
+        let currentTime: Date = new Date();
+        if (this.timeZone !== 0)
+            currentTime.setHours(currentTime.getHours() + this.timeZone);
+        currentTime.setHours(currentTime.getHours() + this.modHour);
+        currentTime.setMinutes(currentTime.getMinutes() + this.modMinute);
+        return currentTime.toLocaleTimeString('en-US', {
             hour: 'numeric',
             minute: 'numeric',
             second: 'numeric',
@@ -38,10 +69,10 @@ export class Watch {
     increase(): void {
         switch (this.currentMode) {
             case "ADD_ONE_HOUR":
-                this.currentTime.setHours(this.currentTime.getHours() + 1);
+                this.modHour += 1;
                 break;
             case "ADD_ONE_MINUTE":
-                this.currentTime.setMinutes(this.currentTime.getMinutes() + 1);
+                this.modMinute += 1;
                 break;
             case "NONE":
                 break;
@@ -55,6 +86,17 @@ export class Watch {
 }
 
 export class UpgradedWatch extends Watch {
+
+    constructor(protected readonly mainContainerId: string, protected readonly timeZone: number = 0) {
+        super(mainContainerId, timeZone);
+        const watchBtns: NodeListOf<HTMLButtonElement> = this.watchElement.querySelectorAll(".watchBtn");
+        watchBtns.item(3).addEventListener("click", () => {
+            this.reset();
+        });
+        watchBtns.item(4).addEventListener("click", () => {
+            this.changeDisplay();
+        });
+    }
 
     changeDisplay(): void {
         this.currentDisplay = this.currentDisplay === '24_H' ? '12_H' : '24_H';

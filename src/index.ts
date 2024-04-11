@@ -1,5 +1,8 @@
 import './index.css';
-import { MyClass } from './example-unit';
+import {Watch} from "./watch/watch";
 
-const a = new MyClass(2);
-console.log('number is', a.get());
+const watch1: Watch = new Watch("mainContainer");
+const intervalId: number = watch1.start()
+
+
+
