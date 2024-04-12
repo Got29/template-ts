@@ -24,21 +24,22 @@ export class Watch {
         this.watchElement = template.content.cloneNode(true) as HTMLElement;
         this.addBtnEventListener();
         this.watchDisplay = this.watchElement.querySelector(".clockDisplay");
+        if (this.timeZone)
+            (this.watchDisplay.children[2] as HTMLElement).innerText = "GMT+" + this.timeZone;
         this.mainContainer.appendChild(this.watchElement);
     }
 
-    addBtnEventListener(): void {
+    addBtnEventListener(): NodeListOf<HTMLButtonElement> {
         const watchBtns: NodeListOf<HTMLButtonElement> = this.watchElement.querySelectorAll(".watchBtn");
         watchBtns.item(0).addEventListener("click", () => this.changeMode());
         watchBtns.item(1).addEventListener("click", () => this.increase());
-        watchBtns.item(2).addEventListener("click", () => {
-            console.log("None");
-        });
+        watchBtns.item(2).addEventListener("click", () => this.changeTheme());
+        return watchBtns;
     }
 
     start(): number {
         return window.setInterval(() => {
-            this.watchDisplay.innerText = this.getCurrentTime()
+            (this.watchDisplay.children[1] as HTMLElement).innerText = this.getCurrentTime()
         }, 1000)
     }
 
@@ -79,23 +80,33 @@ export class Watch {
         }
     }
 
-    getTimeZone(): string {
-        return 'GMT+' + this.timeZone;
+    changeTheme(): void {
+        this.currentTheme = this.currentTheme === 'LIGHT' ? 'DARK' : 'LIGHT';
+        if (this.currentTheme === 'LIGHT') {
+            this.watchDisplay.style.color = "white";
+            this.watchDisplay.style.backgroundColor = "black";
+        } else {
+            this.watchDisplay.style.color = "dodgerblue";
+            this.watchDisplay.style.backgroundColor = "transparent";
+        }
     }
-
 }
 
 export class UpgradedWatch extends Watch {
 
     constructor(protected readonly mainContainerId: string, protected readonly timeZone: number = 0) {
         super(mainContainerId, timeZone);
-        const watchBtns: NodeListOf<HTMLButtonElement> = this.watchElement.querySelectorAll(".watchBtn");
+    }
+
+    addBtnEventListener(): NodeListOf<HTMLButtonElement> {
+        const watchBtns: NodeListOf<HTMLButtonElement> = super.addBtnEventListener();
         watchBtns.item(3).addEventListener("click", () => {
             this.reset();
         });
         watchBtns.item(4).addEventListener("click", () => {
             this.changeDisplay();
         });
+        return watchBtns;
     }
 
     changeDisplay(): void {
