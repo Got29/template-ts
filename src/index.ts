@@ -1,5 +1,6 @@
 import './index.css';
 import './animate.css';
+import './watch/watch.svg';
 import {UpgradedWatch, Watch} from "./watch/watch";
 
 const watch1: Watch = new Watch("mainContainer");

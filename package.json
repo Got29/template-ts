@@ -6,7 +6,7 @@
   "scripts": {
     "clean": "rimraf dist/",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npm run clean && webpack --mode production --config webpack.config.js",
+    "build": "(set NODE_OPTIONS=--openssl-legacy-provider) && npm run clean && webpack --mode production --config webpack.config.js",
     "start-node": "node dist/bundle.js",
     "start": "(set NODE_OPTIONS=--openssl-legacy-provider) && webpack serve --mode development --config webpack.config.js",
     "all": "npm run build && npm run start"
@@ -15,11 +15,14 @@
   "license": "ISC",
   "devDependencies": {
     "css-loader": "^6.2.0",
+    "file-loader": "^6.2.0",
+    "html-webpack-inline-svg-plugin": "^2.3.0",
     "html-webpack-plugin": "^5.3.1",
     "rimraf": "^3.0.2",
     "style-loader": "^3.2.1",
     "ts-loader": "^8.1.0",
     "typescript": "^4.2.4",
+    "url-loader": "^4.1.1",
     "webpack": "^5.32.0",
     "webpack-cli": "^4.6.0",
     "webpack-dev-server": "^3.11.2"
