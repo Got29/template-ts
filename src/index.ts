@@ -1,10 +1,12 @@
 import './index.css';
+import './animate.css';
 import {UpgradedWatch, Watch} from "./watch/watch";
 
 const watch1: Watch = new Watch("mainContainer");
 watch1.start()
 
 const addWatchBtn: HTMLElement = document.getElementById("addWatchButton");
+const animateWatchBtn: HTMLElement = document.getElementById("animateWatchButton");
 addWatchBtn.addEventListener('click', () => {
     const mainContainer: HTMLElement = document.getElementById("mainContainer");
     const template: HTMLTemplateElement = document.getElementById("addWatchFormTemplate") as HTMLTemplateElement;
@@ -15,6 +17,17 @@ addWatchBtn.addEventListener('click', () => {
     const cancelFormBtn: HTMLElement = document.getElementById("cancelFormBtn");
     validateFormBtn.addEventListener('click', onValidate)
     cancelFormBtn.addEventListener('click', onCancel)
+});
+
+const animationClasses: string[] = ["watchRotate", "watchScaleUp", "watchScaleDown"];
+animateWatchBtn.addEventListener('click', () => {
+    const mainContainer: HTMLElement = document.getElementById("mainContainer");
+    const watchesContainer: NodeListOf<HTMLElement> = mainContainer.querySelectorAll(".watchContainer");
+    const randomWatch: HTMLElement = watchesContainer[Math.floor(Math.random() * watchesContainer.length)];
+    const randomAnimation: string = animationClasses[Math.floor(Math.random() * animationClasses.length)];
+    animationClasses.forEach((c: string) => randomWatch.classList.remove(c));
+    randomWatch.offsetWidth; // Force trigger animation
+    randomWatch.classList.add(randomAnimation);
 });
 
 const removeForm = () => {

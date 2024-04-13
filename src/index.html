@@ -12,7 +12,8 @@
 
 <div class="header">
     <h1>Watch demo</h1>
-    <button class="button" id="addWatchButton">Add a watch +</button>
+    <button class="button" id="addWatchButton">Add a watch</button>
+    <button class="button" id="animateWatchButton">Animate a watch</button>
 </div>
 
 
@@ -21,16 +22,17 @@
 <template id="watchTemplate">
     <div class="watchContainer">
         <img src="src/watch/watch.svg" alt="watch"/>
+        <div class="watchBackground"></div>
         <div class="clockDisplay">
-            <span></span>
+            <span>---</span>
             <span>00:00:00</span>
             <span></span>
         </div>
         <div class="watchBtn"></div>
         <div class="watchBtn"></div>
         <div class="watchBtn"></div>
-        <div class="watchBtn"></div>
-        <div class="watchBtn"></div>
+        <div style="display: none" class="watchBtn"></div>
+        <div style="display: none" class="watchBtn"></div>
     </div>
 </template>
 

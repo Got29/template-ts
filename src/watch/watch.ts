@@ -2,6 +2,14 @@ export type WatchMode = 'NONE' | 'ADD_ONE_HOUR' | 'ADD_ONE_MINUTE';
 export type WatchTheme = 'DARK' | 'LIGHT';
 export type WatchDisplay = '24_H' | '12_H';
 
+export enum WatchBtn {
+    MODE = 0,
+    ADD = 1,
+    LIGHT = 2,
+    RESET = 3,
+    DISPLAY = 4
+}
+
 export class Watch {
 
     protected currentMode: WatchMode = 'NONE';
@@ -11,8 +19,9 @@ export class Watch {
     protected modMinute: number = 0
 
     protected mainContainer: HTMLElement;
-    protected watchElement: HTMLElement;
     protected watchDisplay: HTMLElement;
+    protected watchBackground: HTMLElement;
+    protected watchBtns: NodeListOf<HTMLButtonElement>
 
     constructor(protected readonly mainContainerId: string, protected readonly timeZone: number = 0) {
         this.mainContainer = document.getElementById(this.mainContainerId);
@@ -21,20 +30,33 @@ export class Watch {
 
     addWatchToDOM(): void {
         const template: HTMLTemplateElement = document.getElementById("watchTemplate") as HTMLTemplateElement;
-        this.watchElement = template.content.cloneNode(true) as HTMLElement;
-        this.addBtnEventListener();
-        this.watchDisplay = this.watchElement.querySelector(".clockDisplay");
+        const watchElement: HTMLElement = template.content.cloneNode(true) as HTMLElement;
+        this.watchDisplay = watchElement.querySelector(".clockDisplay");
+        this.watchBtns = watchElement.querySelectorAll(".watchBtn");
+        this.watchBackground = watchElement.querySelector(".watchBackground");
+        this.addBtnClickEventListener();
+        this.addBtnHoverEventListener();
         if (this.timeZone)
             (this.watchDisplay.children[2] as HTMLElement).innerText = "GMT+" + this.timeZone;
-        this.mainContainer.appendChild(this.watchElement);
+        this.mainContainer.appendChild(watchElement);
     }
 
-    addBtnEventListener(): NodeListOf<HTMLButtonElement> {
-        const watchBtns: NodeListOf<HTMLButtonElement> = this.watchElement.querySelectorAll(".watchBtn");
-        watchBtns.item(0).addEventListener("click", () => this.changeMode());
-        watchBtns.item(1).addEventListener("click", () => this.increase());
-        watchBtns.item(2).addEventListener("click", () => this.changeTheme());
-        return watchBtns;
+    addBtnClickEventListener(): void {
+        this.watchBtns.item(WatchBtn.MODE).addEventListener("click", () => this.changeMode());
+        this.watchBtns.item(WatchBtn.ADD).addEventListener("click", () => this.increase());
+        this.watchBtns.item(WatchBtn.LIGHT).addEventListener("click", () => this.changeTheme());
+    }
+
+    addBtnHoverEventListener(): void {
+        Object.keys(WatchBtn).forEach((k: keyof typeof WatchBtn) => {
+            const btnElement: HTMLButtonElement = this.watchBtns.item(WatchBtn[k]);
+            btnElement.addEventListener("mouseover", () => {
+                (this.watchDisplay.children[0] as HTMLElement).innerText = k.toLowerCase();
+            });
+            btnElement.addEventListener("mouseout", () => {
+                (this.watchDisplay.children[0] as HTMLElement).innerText = "---";
+            });
+        });
     }
 
     start(): number {
@@ -83,11 +105,11 @@ export class Watch {
     changeTheme(): void {
         this.currentTheme = this.currentTheme === 'LIGHT' ? 'DARK' : 'LIGHT';
         if (this.currentTheme === 'LIGHT') {
-            this.watchDisplay.style.color = "white";
-            this.watchDisplay.style.backgroundColor = "black";
-        } else {
             this.watchDisplay.style.color = "dodgerblue";
-            this.watchDisplay.style.backgroundColor = "transparent";
+            this.watchBackground.style.backgroundColor = "transparent";
+        } else {
+            this.watchDisplay.style.color = "white";
+            this.watchBackground.style.backgroundColor = "black";
         }
     }
 }
@@ -96,24 +118,25 @@ export class UpgradedWatch extends Watch {
 
     constructor(protected readonly mainContainerId: string, protected readonly timeZone: number = 0) {
         super(mainContainerId, timeZone);
+        this.watchBtns.item(WatchBtn.RESET).style.display = "block";
+        this.watchBtns.item(WatchBtn.DISPLAY).style.display = "block";
     }
 
-    addBtnEventListener(): NodeListOf<HTMLButtonElement> {
-        const watchBtns: NodeListOf<HTMLButtonElement> = super.addBtnEventListener();
-        watchBtns.item(3).addEventListener("click", () => {
-            this.reset();
+    addBtnClickEventListener(): void {
+        super.addBtnClickEventListener();
+        this.watchBtns.item(WatchBtn.RESET).addEventListener("click", () => {
+            this.resetMode();
         });
-        watchBtns.item(4).addEventListener("click", () => {
+        this.watchBtns.item(WatchBtn.DISPLAY).addEventListener("click", () => {
             this.changeDisplay();
         });
-        return watchBtns;
     }
 
     changeDisplay(): void {
         this.currentDisplay = this.currentDisplay === '24_H' ? '12_H' : '24_H';
     }
 
-    reset(): void {
+    resetMode(): void {
         this.currentMode = 'NONE';
     }
 }
